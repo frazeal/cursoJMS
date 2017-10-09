@@ -1,21 +1,18 @@
 package br.com.caelum.jms;
 
+import java.util.Enumeration;
 import java.util.Scanner;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
+import javax.jms.Queue;
+import javax.jms.QueueBrowser;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-public class TestarConsumidor {
-	
-	static final int timeOut = 10000;
+public class TesteConferirMensagens {
 
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
@@ -26,23 +23,16 @@ public class TestarConsumidor {
 		Connection connection = factory.createConnection();
 		connection.start();
 		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-		
+
 		Destination fila = (Destination) context.lookup("financeiro");
-		MessageConsumer consumer = session.createConsumer(fila);
-		
-		consumer.setMessageListener(new MessageListener() {
-			
-			@Override
-			public void onMessage(Message msg) {
-				TextMessage txtmsg = (TextMessage) msg;
-				try {
-					System.out.println(txtmsg.getText());
-				} catch (JMSException e) {
-					e.printStackTrace();
-				}
-			}
-		});
-		
+		QueueBrowser browser = session.createBrowser((Queue) fila);
+
+		Enumeration msgs = browser.getEnumeration();
+		while (msgs.hasMoreElements()) {
+			TextMessage msg = (TextMessage) msgs.nextElement();
+			System.out.println("Mensagem: " + msg.getText());
+		}
+
 		new Scanner(System.in).nextLine();
 		session.close();
 		connection.close();

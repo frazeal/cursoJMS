@@ -7,13 +7,13 @@ import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
-import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
+import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-public class TestarConsumidor {
+public class TestaProdutor {
 	
 	static final int timeOut = 10000;
 
@@ -28,22 +28,13 @@ public class TestarConsumidor {
 		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 		
 		Destination fila = (Destination) context.lookup("financeiro");
-		MessageConsumer consumer = session.createConsumer(fila);
+		MessageProducer producer = session.createProducer(fila);
 		
-		consumer.setMessageListener(new MessageListener() {
-			
-			@Override
-			public void onMessage(Message msg) {
-				TextMessage txtmsg = (TextMessage) msg;
-				try {
-					System.out.println(txtmsg.getText());
-				} catch (JMSException e) {
-					e.printStackTrace();
-				}
-			}
-		});
-		
-		new Scanner(System.in).nextLine();
+		for (int i = 0; i < 1000; i++) {
+			Message message = session.createTextMessage("<pedido><id>" + i + "</id></pedido>");
+			producer.send(message);
+		}
+			new Scanner(System.in).nextLine();
 		session.close();
 		connection.close();
 		context.close();

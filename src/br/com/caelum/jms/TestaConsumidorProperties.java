@@ -1,5 +1,6 @@
 package br.com.caelum.jms;
 
+import java.util.Properties;
 import java.util.Scanner;
 
 import javax.jms.Connection;
@@ -13,14 +14,18 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-public class TestarConsumidor {
+public class TestaConsumidorProperties {
 	
 	static final int timeOut = 10000;
 
 	public static void main(String[] args) throws Exception {
-		// TODO Auto-generated method stub
-
-		InitialContext context = new InitialContext();
+		
+		Properties properties = new Properties();
+		properties.setProperty("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");        
+		properties.setProperty("java.naming.provider.url", "tcp://192.168.0.94:61616");
+		properties.setProperty("queue.financeiro", "fila.financeiro");
+	
+		InitialContext context = new InitialContext(properties);
 		ConnectionFactory factory = (ConnectionFactory) context.lookup("ConnectionFactory");
 
 		Connection connection = factory.createConnection();
